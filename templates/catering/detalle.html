@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load formato %}
+
+{% block titulo %}{{ servicio.nombre }}{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'catering:catalogo' %}">Catálogo</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'catering:catalogo' %}?tipo={{ servicio.tipo_menu.id }}">{{ servicio.tipo_menu.nombre }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ servicio.nombre }}</li>
+    </ol>
+</nav>
+
+<div class="card shadow-sm">
+    <div class="row g-0">
+        <div class="col-md-5">
+            {% if servicio.imagen %}
+                <img src="{{ servicio.imagen.url }}" class="img-fluid w-100 h-100 rounded-start detalle-img" alt="{{ servicio.nombre }}">
+            {% else %}
+                <div class="tarjeta-placeholder h-100 d-flex align-items-center justify-content-center rounded-start">
+                    <i class="bi bi-basket2"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-7">
+            <div class="card-body p-4">
+                <div class="d-flex gap-2 mb-2">
+                    <span class="badge text-bg-light border">{{ servicio.tipo_menu.nombre }}</span>
+                    <span class="badge text-bg-{{ servicio.estado|color_estado }}">{{ servicio.get_estado_display }}</span>
+                </div>
+                <h1 class="h3">{{ servicio.nombre }}</h1>
+                <p class="text-muted small">Código: {{ servicio.codigo }}</p>
+                <p>{{ servicio.descripcion }}</p>
+
+                {% if servicio.incluye %}
+                <h2 class="h6 mt-3">Incluye</h2>
+                <p class="small">{{ servicio.incluye|linebreaksbr }}</p>
+                {% endif %}
+
+                <ul class="list-group list-group-flush my-3">
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>Precio por persona</span><strong>{{ servicio.precio_por_persona|clp }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>Mínimo de invitados</span><strong>{{ servicio.minimo_invitados }}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span>Máximo de invitados</span><strong>{{ servicio.maximo_invitados }}</strong>
+                    </li>
+                </ul>
+
+                {# El formulario "Agregar a la cotización" se incorpora en el paso de sesiones #}
+                <a href="{% url 'catering:catalogo' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al catálogo
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

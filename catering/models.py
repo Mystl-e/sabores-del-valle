@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from .utils import normalizar
 
 
 class TipoMenu(models.Model):
@@ -83,6 +84,8 @@ class ServicioCatering(models.Model):
     # --- Baja lógica / vigencia ---
     activo = models.BooleanField('vigente', default=True)
 
+    texto_busqueda = models.TextField(editable=False, blank=True)
+
     # --- Auditoría ---
     creado = models.DateTimeField('creado', auto_now_add=True)
     actualizado = models.DateTimeField('actualizado', auto_now=True)
@@ -103,11 +106,15 @@ class ServicioCatering(models.Model):
                 'maximo_invitados': 'El máximo de invitados no puede ser menor al mínimo.'
             })
 
-    def save(self, *args, **kwargs):
-        # Genera el slug a partir del código + nombre (único porque el código es único)
-        if not self.slug:
-            self.slug = slugify(f'{self.codigo}-{self.nombre}')
-        super().save(*args, **kwargs)
+        def save(self, *args, **kwargs):
+            if not self.slug:
+                self.slug = slugify(f'{self.codigo}-{self.nombre}')
+            self.texto_busqueda = normalizar(
+                ' '.join([self.codigo, self.nombre, self.descripcion, self.incluye])
+            )
+            if kwargs.get('update_fields') is not None:
+                kwargs['update_fields'] = {*kwargs['update_fields'], 'texto_busqueda'}
+            super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('catering:detalle', kwargs={'slug': self.slug})

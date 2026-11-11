@@ -1,0 +1,14 @@
+/* Color corporativo de Sabores del Valle */
+.bg-vino { background-color: #6d1a36; }
+.btn-vino { background-color: #6d1a36; border-color: #6d1a36; color: #fff; }
+.btn-vino:hover { background-color: #521328; border-color: #521328; color: #fff; }
+
+/* Imagen o placeholder de las tarjetas con la misma altura */
+.tarjeta-img { height: 180px; object-fit: cover; }
+.tarjeta-placeholder {
+    height: 180px;
+    background: linear-gradient(135deg, #f3e3e8, #e9d2b7);
+    color: #6d1a36;
+    font-size: 3rem;
+}
+.detalle-img { max-height: 380px; object-fit: cover; }

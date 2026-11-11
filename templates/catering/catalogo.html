@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load formato %}
+
+{% block titulo %}Catálogo de servicios{% endblock %}
+
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-end mb-3 gap-2">
+    <div>
+        <h1 class="h3 mb-0">Catálogo de servicios</h1>
+        <p class="text-muted mb-0">{{ total }} servicio{{ total|pluralize }} encontrado{{ total|pluralize }}</p>
+    </div>
+</div>
+
+<!-- Buscador, filtro y ordenamiento (GET) -->
+<form method="get" class="card card-body shadow-sm mb-4">
+    <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-5">
+            <label for="q" class="form-label small mb-1">Buscar</label>
+            <input type="search" id="q" name="q" value="{{ q }}" class="form-control"
+                   placeholder="Nombre, código o descripción">
+        </div>
+        <div class="col-6 col-md-3">
+            <label for="tipo" class="form-label small mb-1">Tipo de menú</label>
+            <select id="tipo" name="tipo" class="form-select">
+                <option value="">Todos</option>
+                {% for t in tipos %}
+                <option value="{{ t.id }}" {% if tipo_seleccionado == t.id|stringformat:'s' %}selected{% endif %}>{{ t.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-2">
+            <label for="orden" class="form-label small mb-1">Ordenar por</label>
+            <select id="orden" name="orden" class="form-select">
+                {% for clave, etiqueta in ordenamientos.items %}
+                <option value="{{ clave }}" {% if orden == clave %}selected{% endif %}>{{ etiqueta }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-vino flex-fill"><i class="bi bi-search"></i> Filtrar</button>
+            <a href="{% url 'catering:catalogo' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        </div>
+    </div>
+</form>
+
+<!-- Tarjetas Bootstrap -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+    {% for servicio in page_obj %}
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            {% if servicio.imagen %}
+                <img src="{{ servicio.imagen.url }}" class="card-img-top tarjeta-img" alt="{{ servicio.nombre }}">
+            {% else %}
+                <div class="card-img-top tarjeta-placeholder d-flex align-items-center justify-content-center">
+                    <i class="bi bi-basket2"></i>
+                </div>
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge text-bg-light border">{{ servicio.tipo_menu.nombre }}</span>
+                    <span class="badge text-bg-{{ servicio.estado|color_estado }}">{{ servicio.get_estado_display }}</span>
+                </div>
+                <h2 class="h5 card-title">{{ servicio.nombre }}</h2>
+                <p class="small text-muted mb-1">Código: {{ servicio.codigo }}</p>
+                <p class="card-text small flex-grow-1">{{ servicio.descripcion|truncatewords:18 }}</p>
+                <p class="mb-1"><span class="fs-5 fw-bold">{{ servicio.precio_por_persona|clp }}</span> <small class="text-muted">por persona</small></p>
+                <p class="small text-muted"><i class="bi bi-people"></i> {{ servicio.minimo_invitados }} a {{ servicio.maximo_invitados }} invitados</p>
+                <a href="{{ servicio.get_absolute_url }}" class="btn btn-outline-dark btn-sm mt-auto">Ver detalle</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info mb-0">No hay servicios que coincidan con la búsqueda.</div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Paginación: {% querystring %} conserva q, tipo y orden al cambiar de página -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-4" aria-label="Paginación del catálogo">
+    <ul class="pagination justify-content-center flex-wrap">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">&laquo;</a></li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+        {% endif %}
+
+        {% for numero in page_obj.paginator.page_range %}
+            {% if numero == page_obj.number %}
+                <li class="page-item active" aria-current="page"><span class="page-link">{{ numero }}</span></li>
+            {% else %}
+                <li class="page-item"><a class="page-link" href="{% querystring page=numero %}">{{ numero }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="{% querystring page=page_obj.next_page_number %}">&raquo;</a></li>
+        {% else %}
+            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
