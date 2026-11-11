@@ -54,6 +54,11 @@
                 <a href="{% url 'catering:catalogo' %}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i> Volver al catálogo
                 </a>
+                {% if user.is_staff %}
+                <a href="{% url 'catering:servicio_editar' servicio.pk %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                {% endif %}
             </div>
         </div>
     </div>

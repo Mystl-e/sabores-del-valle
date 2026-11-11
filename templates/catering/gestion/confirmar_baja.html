@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load formato %}
+
+{% block titulo %}Confirmar baja{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle"></i> Confirmar baja del servicio
+            </div>
+            <div class="card-body">
+                <p>¿Seguro que deseas dar de baja el siguiente servicio?</p>
+                <ul class="list-unstyled border rounded p-3 bg-light">
+                    <li><strong>Código:</strong> {{ servicio.codigo }}</li>
+                    <li><strong>Nombre:</strong> {{ servicio.nombre }}</li>
+                    <li><strong>Tipo de menú:</strong> {{ servicio.tipo_menu.nombre }}</li>
+                    <li><strong>Precio por persona:</strong> {{ servicio.precio_por_persona|clp }}</li>
+                </ul>
+                <p class="small text-muted">
+                    Es una <strong>baja lógica</strong>: el registro no se elimina de la base de datos,
+                    solo deja de mostrarse en el catálogo público y puede reactivarse después.
+                </p>
+                <form method="post" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-archive"></i> Sí, dar de baja</button>
+                    <a href="{% url 'catering:gestion' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
