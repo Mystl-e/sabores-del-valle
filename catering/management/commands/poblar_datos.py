@@ -186,12 +186,13 @@ class Command(BaseCommand):
 
             Perfil.objects.update_or_create(usuario=usuario, defaults=datos_perfil)
             self._informar('Usuario', usuario, creado)
-            # El coordinador (staff sin superusuario) recibe permisos sobre los modelos de catering
-            coordinador = User.objects.get(username='coordinador')
-            coordinador.user_permissions.set(
-                Permission.objects.filter(content_type__app_label='catering')
-            )
-            self.stdout.write('  Permisos de catering asignados a: coordinador')
+            
+        # El coordinador (staff sin superusuario) recibe permisos sobre los modelos de catering
+        coordinador = User.objects.get(username='coordinador')
+        coordinador.user_permissions.set(
+            Permission.objects.filter(content_type__app_label='catering')
+        )
+        self.stdout.write('  Permisos de catering asignados a: coordinador')
                     
         # Usuarios creados antes de existir el modelo Perfil 
         for usuario in User.objects.filter(perfil__isnull=True):
