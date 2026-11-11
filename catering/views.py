@@ -2,6 +2,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
+from .cotizacion import Cotizacion
 from .models import ServicioCatering, TipoMenu
 from .utils import normalizar
 
@@ -27,8 +28,7 @@ def catalogo(request):
     tipo = request.GET.get('tipo', '')
     orden = request.GET.get('orden', 'nombre')
 
-    # Búsqueda simultánea en nombre, código y descripción con objetos Q (OR)
-        # Búsqueda simultánea en nombre, código y descripción con objetos Q (OR).
+    # Búsqueda simultánea en nombre, código y descripción con objetos Q (OR).
     # texto_busqueda guarda esos campos sin tildes y en minúsculas: 'coctel' encuentra 'Cóctel'
     if q:
         servicios = servicios.filter(
@@ -68,4 +68,9 @@ def detalle(request, slug):
         slug=slug,
         activo=True,
     )
-    return render(request, 'catering/detalle.html', {'servicio': servicio})
+    # Si el servicio ya está en la cotización, se precarga su cantidad de invitados
+    invitados_actuales = Cotizacion(request).invitados_de(servicio.pk)
+    return render(request, 'catering/detalle.html', {
+        'servicio': servicio,
+        'invitados_actuales': invitados_actuales,
+    })

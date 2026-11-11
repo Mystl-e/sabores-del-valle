@@ -50,7 +50,36 @@
                     </li>
                 </ul>
 
-                {# El formulario "Agregar a la cotización" se incorpora en el paso de sesiones #}
+                <!-- Agregar a la cotización (request.session) -->
+                {% if servicio.esta_disponible %}
+                <form method="post" action="{% url 'catering:cotizacion_agregar' servicio.pk %}" class="card card-body bg-light mb-3">
+                    {% csrf_token %}
+                    <label for="invitados" class="form-label fw-semibold">
+                        N° de invitados <small class="text-muted fw-normal">(entre {{ servicio.minimo_invitados }} y {{ servicio.maximo_invitados }})</small>
+                    </label>
+                    <div class="input-group">
+                        <input type="number" id="invitados" name="invitados" class="form-control"
+                               min="{{ servicio.minimo_invitados }}" max="{{ servicio.maximo_invitados }}"
+                               value="{{ invitados_actuales|default:servicio.minimo_invitados }}" required>
+                        <button type="submit" class="btn btn-vino">
+                            {% if invitados_actuales %}
+                                <i class="bi bi-arrow-repeat"></i> Actualizar cotización
+                            {% else %}
+                                <i class="bi bi-cart-plus"></i> Agregar a la cotización
+                            {% endif %}
+                        </button>
+                    </div>
+                    {% if invitados_actuales %}
+                    <div class="form-text">Ya está en tu cotización con {{ invitados_actuales }} invitados.</div>
+                    {% endif %}
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-circle"></i>
+                    Este servicio no está disponible para cotizar ({{ servicio.get_estado_display }}).
+                </div>
+                {% endif %}
+
                 <a href="{% url 'catering:catalogo' %}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i> Volver al catálogo
                 </a>

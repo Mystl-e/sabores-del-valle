@@ -106,15 +106,18 @@ class ServicioCatering(models.Model):
                 'maximo_invitados': 'El máximo de invitados no puede ser menor al mínimo.'
             })
 
-        def save(self, *args, **kwargs):
-            if not self.slug:
-                self.slug = slugify(f'{self.codigo}-{self.nombre}')
-            self.texto_busqueda = normalizar(
-                ' '.join([self.codigo, self.nombre, self.descripcion, self.incluye])
-            )
-            if kwargs.get('update_fields') is not None:
-                kwargs['update_fields'] = {*kwargs['update_fields'], 'texto_busqueda'}
-            super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        # Genera el slug a partir del código + nombre (único porque el código es único)
+        if not self.slug:
+            self.slug = slugify(f'{self.codigo}-{self.nombre}')
+        # Copia normalizada para búsquedas sin importar tildes ni mayúsculas
+        self.texto_busqueda = normalizar(
+            ' '.join([self.codigo, self.nombre, self.descripcion, self.incluye])
+        )
+        # Si se guarda solo una parte de los campos (update_fields), incluir también estos
+        if kwargs.get('update_fields') is not None:
+            kwargs['update_fields'] = {*kwargs['update_fields'], 'texto_busqueda', 'slug'}
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('catering:detalle', kwargs={'slug': self.slug})

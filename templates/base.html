@@ -41,7 +41,7 @@
                 <ul class="navbar-nav align-items-lg-center">
                     <!-- Contador global inyectado por el context processor -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{% url 'catering:cotizacion' %}">
                             <i class="bi bi-receipt"></i> Mi cotización
                             <span class="badge rounded-pill bg-warning text-dark">{{ cotizacion_cantidad }}</span>
                         </a>

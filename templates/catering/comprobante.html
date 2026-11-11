@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load formato %}
+
+{% block titulo %}Solicitud {{ c.folio }}{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-9">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                    <div>
+                        <h1 class="h4 mb-1">Solicitud de cotización</h1>
+                        <p class="text-muted mb-0">Sabores del Valle Banquetería</p>
+                    </div>
+                    <div class="text-md-end">
+                        <div class="fw-bold fs-5">{{ c.folio }}</div>
+                        <div class="small text-muted">{{ c.fecha }}</div>
+                    </div>
+                </div>
+
+                <p class="mb-3"><strong>Cliente:</strong> {{ c.cliente }}{% if c.email %} · {{ c.email }}{% endif %}</p>
+
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código</th><th>Servicio</th>
+                                <th class="text-end">Precio p/p</th><th class="text-end">Invitados</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for l in c.lineas %}
+                            <tr>
+                                <td>{{ l.codigo }}</td><td>{{ l.nombre }}</td>
+                                <td class="text-end">{{ l.precio|clp }}</td>
+                                <td class="text-end">{{ l.invitados }}</td>
+                                <td class="text-end">{{ l.subtotal|clp }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr><td colspan="4" class="text-end">Subtotal</td><td class="text-end">{{ c.totales.subtotal|clp }}</td></tr>
+                            <tr><td colspan="4" class="text-end">Servicio de garzones ({{ tasa_servicio }}%)</td><td class="text-end">{{ c.totales.cargo_servicio|clp }}</td></tr>
+                            <tr><td colspan="4" class="text-end">Neto</td><td class="text-end">{{ c.totales.neto|clp }}</td></tr>
+                            <tr><td colspan="4" class="text-end">IVA ({{ tasa_iva }}%)</td><td class="text-end">{{ c.totales.iva|clp }}</td></tr>
+                            <tr class="fw-bold fs-5"><td colspan="4" class="text-end">Total final</td><td class="text-end">{{ c.totales.total|clp }}</td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <p class="small text-muted">
+                    Solicitud simulada con fines académicos. Un coordinador de eventos se pondrá en contacto
+                    para confirmar fecha, lugar y disponibilidad.
+                </p>
+                <div class="d-flex gap-2 d-print-none">
+                    <button onclick="window.print()" class="btn btn-outline-dark"><i class="bi bi-printer"></i> Imprimir</button>
+                    <a href="{% url 'catering:catalogo' %}" class="btn btn-vino">Volver al catálogo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

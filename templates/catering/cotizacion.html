@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load formato %}
+
+{% block titulo %}Mi cotización{% endblock %}
+
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <h1 class="h3 mb-0"><i class="bi bi-receipt"></i> Cotizador de evento</h1>
+    <a href="{% url 'catering:catalogo' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-plus-lg"></i> Agregar más servicios
+    </a>
+</div>
+
+{% if lineas %}
+<div class="row g-4">
+    <!-- Servicios en la sesión -->
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Servicio</th>
+                            <th class="text-end">Precio p/p</th>
+                            <th style="min-width: 170px;">Invitados</th>
+                            <th class="text-end">Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for linea in lineas %}
+                        {% with s=linea.servicio %}
+                        <tr>
+                            <td>
+                                <a href="{{ s.get_absolute_url }}" class="fw-semibold text-decoration-none">{{ s.nombre }}</a>
+                                <div class="small text-muted">{{ s.codigo }} · {{ s.tipo_menu.nombre }}</div>
+                            </td>
+                            <td class="text-end">{{ s.precio_por_persona|clp }}</td>
+                            <td>
+                                <!-- Modificar parámetro cuantitativo -->
+                                <form method="post" action="{% url 'catering:cotizacion_actualizar' s.pk %}" class="input-group input-group-sm">
+                                    {% csrf_token %}
+                                    <input type="number" name="invitados" value="{{ linea.invitados }}"
+                                           min="{{ s.minimo_invitados }}" max="{{ s.maximo_invitados }}"
+                                           class="form-control" aria-label="Invitados">
+                                    <button class="btn btn-outline-primary" title="Actualizar"><i class="bi bi-arrow-repeat"></i></button>
+                                </form>
+                                <div class="small text-muted">{{ s.minimo_invitados }} a {{ s.maximo_invitados }}</div>
+                            </td>
+                            <td class="text-end fw-semibold">{{ linea.subtotal|clp }}</td>
+                            <td class="text-end">
+                                <!-- Eliminar elemento individual -->
+                                <form method="post" action="{% url 'catering:cotizacion_eliminar' s.pk %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-outline-danger" title="Quitar"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <form method="post" action="{% url 'catering:cotizacion_vaciar' %}" class="mt-3">
+            {% csrf_token %}
+            <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x-circle"></i> Vaciar cotización</button>
+        </form>
+    </div>
+
+    <!-- Desglose económico -->
+    <div class="col-12 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-vino text-white">Resumen de la cotización</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Subtotal</span><span>{{ totales.subtotal|clp }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Servicio de garzones ({{ tasa_servicio }}%)</span><span>{{ totales.cargo_servicio|clp }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Neto</span><span>{{ totales.neto|clp }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>IVA ({{ tasa_iva }}%)</span><span>{{ totales.iva|clp }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between fs-5 fw-bold">
+                    <span>Total final</span><span>{{ totales.total|clp }}</span>
+                </li>
+            </ul>
+            <div class="card-body">
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'catering:cotizacion_confirmar' %}">
+                    {% csrf_token %}
+                    <button class="btn btn-vino w-100"><i class="bi bi-check2-circle"></i> Confirmar solicitud</button>
+                </form>
+                {% else %}
+                <a href="{% url 'usuarios:login' %}?next={% url 'catering:cotizacion' %}" class="btn btn-vino w-100">
+                    Inicia sesión para confirmar
+                </a>
+                <p class="small text-muted mt-2 mb-0">Tu cotización se mantiene al iniciar sesión.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-receipt display-4 text-muted"></i>
+    <p class="mt-3 text-muted">Tu cotización está vacía.</p>
+    <a href="{% url 'catering:catalogo' %}" class="btn btn-vino">Ver catálogo de servicios</a>
+</div>
+{% endif %}
+{% endblock %}
