@@ -134,3 +134,7 @@ from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
+
+# Autenticación
+LOGIN_URL = 'usuarios:login'
+LOGIN_REDIRECT_URL = 'catering:catalogo'

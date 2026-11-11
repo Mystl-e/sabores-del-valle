@@ -44,8 +44,30 @@
                         </a>
                     </li>
                     {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> {{ user.first_name|default:user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'usuarios:perfil' %}"><i class="bi bi-person-badge"></i> Mi perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <!-- Logout por POST con token CSRF -->
+                                <form method="post" action="{% url 'usuarios:logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
                     <li class="nav-item">
-                        <span class="nav-link"><i class="bi bi-person-circle"></i> {{ user.username }}</span>
+                        <a class="nav-link" href="{% url 'usuarios:login' %}"><i class="bi bi-box-arrow-in-right"></i> Ingresar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-sm btn-light ms-lg-2" href="{% url 'usuarios:registro' %}">Registrarse</a>
                     </li>
                     {% endif %}
                 </ul>
