@@ -4,6 +4,7 @@ from django.db import transaction
 
 from catering.models import ServicioCatering, TipoMenu
 from usuarios.models import Perfil
+from django.contrib.auth.models import Permission
 
 TIPOS_MENU = [
     {
@@ -185,8 +186,14 @@ class Command(BaseCommand):
 
             Perfil.objects.update_or_create(usuario=usuario, defaults=datos_perfil)
             self._informar('Usuario', usuario, creado)
-
-        # Usuarios creados antes de existir el modelo Perfil (ej. tu primer superusuario)
+            # El coordinador (staff sin superusuario) recibe permisos sobre los modelos de catering
+            coordinador = User.objects.get(username='coordinador')
+            coordinador.user_permissions.set(
+                Permission.objects.filter(content_type__app_label='catering')
+            )
+            self.stdout.write('  Permisos de catering asignados a: coordinador')
+                    
+        # Usuarios creados antes de existir el modelo Perfil 
         for usuario in User.objects.filter(perfil__isnull=True):
             Perfil.objects.create(usuario=usuario)
             self.stdout.write(f'  Perfil creado para usuario existente: {usuario.username}')
